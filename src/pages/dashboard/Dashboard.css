@@ -1,0 +1,9 @@
+.card-body-h{
+    height: 15rem !important;
+}
+
+.card-black{
+    background-color: #1A1A19;
+    color: #ffffff;
+    border-radius: 5px;
+}
