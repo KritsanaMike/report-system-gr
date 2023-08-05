@@ -19,10 +19,10 @@ export default function Sidebars() {
       style={{ display: "flex", height: "100vh", overflow: "scroll initial" }}
     >
       <CDBSidebar textColor="#fff" backgroundColor="#1A1A19">
-        <CDBSidebarHeader prefix={<i className="fa fa-bars fa-large"></i>}>
+        <CDBSidebarHeader prefix={<i className="fa fa-bars fa-large "></i>}>
           <a
             href="/"
-            className="text-decoration-none"
+            className="text-decoration-none logo fn-30"
             style={{ color: "#EED236" }}
           >
             GR
@@ -41,7 +41,7 @@ export default function Sidebars() {
                 }
               >
                 <CDBSidebarMenuItem icon="table" className="pd-menu">
-                   <span className="me-5">เตา {index + 10}</span>
+                   <span className="me-5">เตา {index + 11}</span>
                   <NavLink to={"/"}>
                     <button type="button" className="btn btn-dark btn-file">
                       <i className="fa fa-file me-2"></i>

@@ -1,11 +1,17 @@
-.input-nav {
+/* .input-nav {
     margin-left:5rem !important;
     width:25rem;
     
+} */
+
+.top-text{
+    font-size: 1.75rem;
+    font-weight: 400 !important;
 }
 
 @media(max-width:920px) {
-    .input-nav {
-        display:none;
+    .top-text{
+        font-size: 1rem;
+        font-weight: 400 !important;
     }
 }

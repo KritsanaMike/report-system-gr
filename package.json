@@ -12,6 +12,8 @@
   "dependencies": {
     "bootstrap": "^5.3.1",
     "cdbreact": "^1.5.18",
+    "highcharts": "^11.1.0",
+    "highcharts-react-official": "^3.2.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
     "react-dom": "^18.2.0",

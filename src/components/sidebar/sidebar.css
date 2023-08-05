@@ -31,3 +31,13 @@ a.activeClicked{
     width: 5rem;
 }
 
+.logo{
+    padding-left: 5rem;
+}
+
+.head-div{
+    padding: 14px 28px !important;
+}
+.head-div.toggled{
+    padding: 24px 28px !important;
+}

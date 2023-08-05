@@ -1,5 +1,6 @@
 import React from "react";
 import { CDBNavbar, CDBInput } from "cdbreact";
+import './Headers.css'
 
 export default function Headers(){
   return (
@@ -19,7 +20,7 @@ export default function Headers(){
         className="justify-content-start"
         style={{ height: "4.6rem" }}
       >
-        <span className="ms-5">รายงานเช็คอุณหภูมิเตา (Smoking Temperature Control Report)</span>
+        <span className="ms-5 top-text">รายงานเช็คอุณหภูมิเตา (Smoking Temperature Control Report)</span>
       </CDBNavbar> 
     </div>
   );
