@@ -1,58 +1,61 @@
-
 ::-webkit-scrollbar {
-    width:5px;
-    height:5px;
-  }
-  
-::-webkit-scrollbar-thumb {
-border-radius:5px;
-background-color: #ccc;
+    width: 5px;
+    height: 5px;
 }
 
-.fn-16{
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: #ccc;
+}
+
+.fn-16 {
     font-size: 1rem;
 }
 
-.fn-18{
+.fn-18 {
     font-size: 1.125rem;
 }
 
-.fn-20{
+.fn-20 {
     font-size: 1.25rem;
 }
 
-.fn-22{
+.fn-22 {
     font-size: 1.375rem;
 }
 
-.fn-24{
+.fn-24 {
     font-size: 1.5rem;
 }
 
-.fn-26{
+.fn-26 {
     font-size: 1.625rem;
 }
 
-.fn-28{
+.fn-28 {
     font-size: 1.75rem;
 }
 
-.fn-30{
+.fn-30 {
     font-size: 1.875rem;
 }
 
-.fn-32{
+.fn-32 {
     font-size: 2rem;
 }
 
-.text-yellow{
+.fn-40 {
+    font-size: 3rem;
+}
+
+.text-yellow {
     color: #EED236;
 }
 
-.center{
+.center {
     text-align: center;
 }
 
-.mb-none{
+.mb-none {
     margin-bottom: unset;
 }

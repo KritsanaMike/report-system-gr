@@ -1,18 +1,25 @@
-a.activeClicked{
+a.activeClicked {
     background-color: #EED236 !important;
 }
+
+.activeClickedFile {
+    background-color: aliceblue !important;
+}
+
 .y-color {
     color: #EED236;
 }
-.fRhOkl{
+
+.fRhOkl {
     padding-top: 0px !important;
 }
 
-.jAaeFT{
+.jAaeFT {
     padding-top: 0px !important;
     padding-bottom: 0px !important;
 }
-.hQSxZz{
+
+.hQSxZz {
     background: #EED236;
     color: #1A1A19;
     margin-left: unset !important;
@@ -21,23 +28,25 @@ a.activeClicked{
     margin-right: unset !important;
     padding: 8px;
 }
-.pd-menu{
+
+.pd-menu {
     /* padding-left: 1rem; */
 }
 
-.btn-file{
+.btn-file {
     /* margin-left: 3.5rem!important; */
     border-radius: 0px;
     width: 5rem;
 }
 
-.logo{
+.logo {
     padding-left: 5rem;
 }
 
-.head-div{
+.head-div {
     padding: 14px 28px !important;
 }
-.head-div.toggled{
+
+.head-div.toggled {
     padding: 24px 28px !important;
 }

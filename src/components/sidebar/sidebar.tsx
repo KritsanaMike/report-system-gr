@@ -12,6 +12,7 @@ import { NavLink } from "react-router-dom";
 import "./sidebar.css";
 let activeClassName = "activeClicked";
 
+
 export default function Sidebars() {
   const items = Array.from({ length: 5 }, (_, index) => `/${index + 10}`);
   return (
@@ -35,14 +36,14 @@ export default function Sidebars() {
 
             {items.map((item, index) => (
               <NavLink
-                to={item}
+                to={"/blower" + item}
                 className={({ isActive }) =>
                   isActive ? activeClassName : undefined
                 }
               >
                 <CDBSidebarMenuItem icon="table" className="pd-menu">
-                   <span className="me-5">เตา {index + 11}</span>
-                  <NavLink to={"/"}>
+                  <span className="me-5">เตา {index + 11}</span>
+                  <NavLink to={"/file" + String(item)}>
                     <button type="button" className="btn btn-dark btn-file">
                       <i className="fa fa-file me-2"></i>
                       File
