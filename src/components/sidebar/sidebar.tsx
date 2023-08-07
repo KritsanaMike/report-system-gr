@@ -14,7 +14,7 @@ let activeClassName = "activeClicked";
 
 
 export default function Sidebars() {
-  const items = Array.from({ length: 5 }, (_, index) => `/${index + 10}`);
+  const items = Array.from({ length: 16 }, (_, index) => `/${index + 10}`);
   return (
     <div
       style={{ display: "flex", height: "100vh", overflow: "scroll initial" }}
@@ -55,7 +55,7 @@ export default function Sidebars() {
           </CDBSidebarMenu>
         </CDBSidebarContent>
 
-        <CDBSidebarFooter style={{ textAlign: "center" }}></CDBSidebarFooter>
+        <CDBSidebarFooter style={{ textAlign: "center", }}> 55 </CDBSidebarFooter>
       </CDBSidebar>
     </div>
   );

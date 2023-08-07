@@ -1,4 +1,9 @@
-.my-table {
-    background-color: #DFDFD9;
-    box-shadow: none !important;
+
+.Mui-selected{
+    background-color: #EED236 !important;
+    border-radius: unset !important;
+}
+.MuiPaginationItem-circular:hover{
+    /* background-color: #EED236 !important; */
+    border-radius: unset !important;
 }

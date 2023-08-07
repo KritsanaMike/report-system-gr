@@ -1,39 +1,87 @@
 import React from "react";
 import { useState } from "react";
-import "../listfile/Listfile"
+
 import Sidebar from "../../components/sidebar/sidebar";
 import Headers from "../../components/header/Headers";
-import { useParams } from 'react-router-dom';
-import { Table, Pagination } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-// import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination } from '@mui/material';
+import { useParams } from "react-router-dom";
+import './listfile.css'
+// import ReactPaginate from "react-paginate";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Stack from "@mui/material/Stack";
+import Pagination from "@mui/material/Pagination";
 
+function paginator(items, current_page, per_page_items) {
+  let page = current_page || 1,
+    per_page = per_page_items,
+    offset = (page - 1) * per_page,
+    paginatedItems = items.slice(offset).slice(0, per_page_items),
+    total_pages = Math.ceil(items.length / per_page);
+  // console.log("Anzahl: " + items.lgenth);
 
-// const data = [
-//   { id: 1, name: 'Product A', price: 100 },
-//   { id: 2, name: 'Product B', price: 150 },
-//   { id: 3, name: 'Product C', price: 200 },
-//   { id: 4, name: 'Product D', price: 120 },
-//   { id: 5, name: 'Product E', price: 80 },
-//   { id: 6, name: 'Product F', price: 300 },
-//   // Add more data as needed
-// ];
+  return {
+    page: page,
+    per_page: per_page,
+    pre_page: page - 1 ? page - 1 : null,
+    next_page: total_pages > page ? page + 1 : null,
+    total: items.length,
+    total_pages: total_pages,
+    data: paginatedItems,
+  };
+}
 
-export default function Listfile() {
+export default function Listfile({ itemsPerPage }: DataTableProps) {
   const { fileid } = useParams();
 
-  // const [page, setPage] = useState(0);
-  // const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
+  const carrierDetails = [
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
+    {
+      name: "วันที่ 26 มกราคม 2566",
+    },
 
-  // const handleChangePage = (event, newPage) => {
-  //   setPage(newPage);
-  // };
+  ];
 
-  // const handleChangeRowsPerPage = (event) => {
-  //   setRowsPerPage(parseInt(event.target.value, 10));
-  //   setPage(0);
-  // };
-
+  const count = Math.ceil(carrierDetails.length / 3);
+  const [page, setPage] = React.useState(1);
+  const handleChange = (event, value) => {
+    setPage(paginator(carrierDetails, value, 3).page);
+  };
+  const [checked, setChecked] = React.useState([]);
+  const handleOnChange = (e, index) => {
+    let prev = checked;
+    let itemIndex = prev.indexOf(index);
+    if (itemIndex !== -1) {
+      prev.splice(itemIndex, 1);
+    } else {
+      prev.push(index);
+    }
+    setChecked([...prev]);
+  };
+  console.log(checked);
 
   return (
     <div className="d-flex">
@@ -52,39 +100,59 @@ export default function Listfile() {
       >
         <Headers />
         <div className="p-4 overflow-auto">
-          <div> {/* content */}
-            <p className="fn-40" style={{ color: "#EED236", }}>ไฟล์ เตา {fileid}</p>
-            {/* <TableContainer component={Paper} className="my-table" style={{ background: "#DFDFD9" }}>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Price</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.id}</TableCell>
-                      <TableCell>{item.name}</TableCell>
-                      <TableCell>${item.price}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              <TablePagination
-                rowsPerPageOptions={rowsPerPageOptions}
-                component="div"
-                count={data.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </TableContainer> */}
-
+          <div>
+            {" "}
+            {/* content */}
+            <p className="fn-40" style={{ color: "#EED236" }}>
+              ไฟล์ เตา {fileid}
+            </p>
           </div>
+          {/* table */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <List
+              sx={{
+                width: "100%",
+                maxWidth: "100rem",
+                bgcolor: "#DFDFD9",
+              }}
+            >
+              {paginator(carrierDetails, page, 3).data.map((value, index) => {
+                return (
+                  <ListItem
+                    alignItems="flex-start"
+                    divider={index < carrierDetails.length - 1}
+                  >
+                    <ListItemText
+                      primary={value.carrierName}
+                      secondary={
+                        <React.Fragment>
+                          <Stack direction="column" spacing={1}>
+                            <div className="p-2">
+                              <b>Name</b> {value.name+ " : " +index}
+                            </div>
+                          </Stack>
+                        </React.Fragment>
+                      }
+                    />
+                  </ListItem>
+                );
+              })}
+            </List>
+            <div style={{ display: "flex", justifyContent: "right" }}>
+              <Pagination 
+                count={count}
+                page={page}
+                onChange={handleChange}
+                // color="success"
+              />
+            </div>
+          </div>
+          {/* </Container> */}
         </div>
       </div>
     </div>
