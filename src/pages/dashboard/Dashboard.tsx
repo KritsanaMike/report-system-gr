@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Sidebars from "../../components/sidebar/sidebar";
 import Headers from "../../components/header/Headers";
 import Card from "react-bootstrap/Card";
@@ -185,6 +185,20 @@ const gp2: Highcharts.Options = {
 export default function Dashboard(props: HighchartsReact.Props) {
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
   const { id } = useParams();
+
+  const [data ,setData] = useState([])
+
+
+  // useEffect(() => {
+  //   fetch('https://jsonplaceholder.typicode.com/users')
+  //   .then(res => res.json)
+  //   .then(data => setData(data));
+  // }, [])
+
+  // console.log(data);
+  
+
+
   return (
 
     <div className="d-flex">
