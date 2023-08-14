@@ -84,7 +84,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
       const currentDate = new Date();
 
       // const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '/pdf/?oven=' + id + '&cycle=' + lsCycle + ' &time_stamp=' + currentDate);
-      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '/pdf');
+      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf?oven=' + id + '&cycle=' + lsCycle);
 
       console.log(response.data);
       const blob = await response.blob();
@@ -92,7 +92,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
       const a = document.createElement('a');
       a.href = url;
 
-      a.setAttribute('download', 'downloaded_file.pdf');
+      a.setAttribute('download', 'download.pdf');
       document.body.appendChild(a);
       a.click();
 
