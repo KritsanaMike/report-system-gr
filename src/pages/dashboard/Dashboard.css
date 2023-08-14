@@ -1,40 +1,71 @@
-.card-body-h{
+.card-body-h {
     height: 15rem !important;
     /* height: auto; */
 }
 
-.card-black{
+.card-black {
     background-color: #1A1A19;
     color: #ffffff;
     border-radius: 5px;
 }
-.dt-blower{
+
+.dt-blower {
     width: auto;
     height: 2.75rem;
-    background-color: #EED236 ;
+    background-color: #EED236;
     /* opacity: 0.6; */
     border-radius: 5px;
     margin-bottom: 1rem;
 }
 
-.text-black{
+.text-black {
     color: #1A1A19;
     opacity: 100%;
-  }
-  
-.tm-onoff{
+}
+
+.tm-onoff {
     padding-left: 3rem;
     padding-top: 1rem;
     padding-right: 3rem;
     padding-bottom: 1rem;
 }
 
-.tm-onoff-bg{
+.tm-onoff-bg {
     background-color: #1A1A19;
     border-radius: 5px;
     padding: 0.5rem;
 }
 
-ิ.bg-yellow{
+ิ.bg-yellow {
     background-color: #EED236 !important;
+}
+
+.stateklinYello {
+    pointer-events: none;
+    background-color: #EED236 !important;
+    border: none !important;
+    width: 8rem !important;
+}
+
+.stateklinYello:hover {
+    pointer-events: none;
+    cursor: default;
+    background-color: #EED236 !important;
+    border: none !important;
+    width: 8rem !important;
+}
+
+.stateklinRed {
+    pointer-events: none;
+    background-color: rgb(255, 32, 32);
+    border: none !important;
+    width: 8rem !important;
+}
+
+.stateklinRed:hover {
+    pointer-events: none;
+    cursor: default;
+    background-color: rgb(255, 32, 32);
+    border: none !important;
+    width: 8rem !important;
 }

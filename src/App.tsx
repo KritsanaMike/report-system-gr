@@ -16,7 +16,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route exact path="/" element={<Dashboard />}></Route>
-        <Route path="/blower/:id" element={<Dashboard />}></Route>
+        <Route path="/kiln/:id" element={<Dashboard />}></Route>
         <Route path="/file/:fileid" element={<Listfile />}></Route>
         {/* <Route path="/blower/11" element={<Listfile />}></Route>
         <Route path="/blower/12" element={<Listfile />}></Route>

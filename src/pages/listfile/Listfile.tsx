@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import Sidebar from "../../components/sidebar/sidebar";
 import Headers from "../../components/header/Headers";
@@ -31,8 +31,62 @@ function paginator(items, current_page, per_page_items) {
   };
 }
 
+// export const Listfile = ({ itemsPerPage }: DataTableProps) =>{
+// 
+
+// interface SensorData {
+//   startoven: number;
+//   oven: number;
+//   cycle: number;
+//   humanity: number;
+//   roomtemp: number;
+//   oventemp?: number;
+//   blower?: number;
+//   time_stamp: number;
+// }
+
 export default function Listfile({ itemsPerPage }: DataTableProps) {
+
+
+
+
   const { fileid } = useParams();
+  const [mydata, setData] = useState([])
+  // const [ovenData, setOvenData] = useState<SensorData[]>([]);
+  // const [selectedOven, setSelectedOven] = useState<number | null>(null);
+  console.log(fileid);
+
+
+
+  useEffect(() => {
+    console.log(6666);
+    const fetchData = async () => {
+      const token = 'O8sVbUAiTUN6ohq3EzTPEbdy2_6CrUSwzVt1_vXnu9c';
+
+      try {
+        const response = await fetch(import.meta.env.VITE_API_ENDPOINT+'?oven='+fileid, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const jsonData = await response.json();
+        setData(jsonData);
+        
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+   
+    
+
+    fetchData();
+    console.log(mydata);
+    
+    
+  }, [fileid]);
 
   const carrierDetails = [
     {
@@ -65,10 +119,10 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
 
   ];
 
-  const count = Math.ceil(carrierDetails.length / 3);
+  const count = Math.ceil(mydata.length / 3);
   const [page, setPage] = React.useState(1);
   const handleChange = (event, value) => {
-    setPage(paginator(carrierDetails, value, 3).page);
+    setPage(paginator(mydata, value, 3).page);
   };
   const [checked, setChecked] = React.useState([]);
   const handleOnChange = (e, index) => {
@@ -121,11 +175,11 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
                 bgcolor: "#DFDFD9",
               }}
             >
-              {paginator(carrierDetails, page, 3).data.map((value, index) => {
+              {paginator(mydata, page, 3).data.map((value, index) => {
                 return (
                   <ListItem
                     alignItems="flex-start"
-                    divider={index < carrierDetails.length - 1}
+                    divider={index < mydata.length - 1}
                   >
                     <ListItemText
                       primary={value.carrierName}
@@ -133,7 +187,7 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
                         <React.Fragment>
                           <Stack direction="column" spacing={1}>
                             <div className="p-2">
-                              <b>Name</b> {value.name+ " : " +index}
+                              <b>Name</b> {value.humanity + " : " + index}
                             </div>
                           </Stack>
                         </React.Fragment>
@@ -144,11 +198,11 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
               })}
             </List>
             <div style={{ display: "flex", justifyContent: "right" }}>
-              <Pagination 
+              <Pagination
                 count={count}
                 page={page}
                 onChange={handleChange}
-                // color="success"
+              // color="success"
               />
             </div>
           </div>

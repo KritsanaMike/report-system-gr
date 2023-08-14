@@ -7,197 +7,345 @@ import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useParams } from 'react-router-dom';
 
-const generateRandomData = (days: number, intervalInMinutes: number) => {
-  const data = [];
-  const startDate = new Date();
-  startDate.setHours(0, 0, 0, 0); // Start at midnight
-  const millisecondsInMinute = 60000;
-
-  for (let i = 0; i < days * 24 * 60 / intervalInMinutes; i++) {
-    const timestamp = startDate.getTime() + i * intervalInMinutes * millisecondsInMinute;
-    const temperature = getRandomNumber(30, 45); // Replace with your temperature data source
-    const humidity = getRandomNumber(70, 80); // Replace with your humidity data source
-
-    data.push({
-      timestamp,
-      temperature,
-      humidity,
-    });
-  }
-
-  return data;
-};
-
-const getRandomNumber = (min: number, max: number) => {
-  return Math.random() * (max - min) + min;
-};
-
-// Usage: Generate 3 days of data with a 30-minute interval
-const data = generateRandomData(3, 30);
-
-const gp1: Highcharts.Options = {
-  chart: {
-    style: {
-      fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
-    },
-  },
-  title: {
-    text: 'อุณหภูมิและความชื้นในห้องอบ',
-  },
-  xAxis: {
-    type: 'datetime',
-    labels: {
-      formatter: function () {
-        // Format x-axis labels as per your requirement
-        return Highcharts.dateFormat('%H:%M', this.value);
-      },
-    },
-    // Add the following to create grid lines at midnight
-    gridLineWidth: 1,
-    gridLineColor: 'rgba(0, 0, 0, 0.1)',
-    tickInterval: 24 * 3600 * 1000, // One day in milliseconds
-  },
-  yAxis: [
-    {
-      title: {
-        text: 'อุณหภูมิ (°C) และ ความชื้น (%)',
-      },
-      plotLines: [
-        {
-          value: 45,
-          color: 'red', // Change the color as per your preference
-          dashStyle: 'dot',
-          width: 2,
-          label: {
-            text: 'Danger', // Label for the line
-            align: 'left',
-            x: 5,
-            style: {
-              color: 'red', // Change the color as per your preference
-            },
-          },
-        },
-      ],
-
-    },
-    {
-      title: {
-        text: '',
-      },
-      opposite: true,
-    },
-  ],
-  series: [
-    {
-      name: 'อุณหภูมิในห้องอบ',
-      data: data.map((point) => [point.timestamp, point.temperature]),
-      yAxis: 0,
-      type: 'spline', // You can use 'line' for simple lines
-      color: 'green',
-      marker: {
-        symbol: 'circle',
-        enabled: true,
-        radius: 3, // Adjust the size of the circle data points
-        fillColor: 'green', // Set custom color for temperature data points
-      },
-    },
-    {
-      name: 'ความชื้นในห้องอบ',
-      data: data.map((point) => [point.timestamp, point.humidity]),
-      yAxis: 0,
-      type: 'spline',
-      color: 'blue',
-      marker: {
-        symbol: 'circle',
-        enabled: true,
-        radius: 3, // Adjust the size of the circle data points
-        fillColor: 'blue', // Set custom color for temperature data points
-      },
-    },
-  ],
-};
-
-const gp2: Highcharts.Options = {
-  chart: {
-    style: {
-      fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
-    },
-  },
-  title: {
-    text: 'อุณหภูมิในเตาเผา และ Blower',
-  },
-  xAxis: {
-    type: 'datetime',
-    labels: {
-      formatter: function () {
-        // Format x-axis labels as per your requirement
-        return Highcharts.dateFormat('%H:%M', this.value);
-      },
-    },
-    // Add the following to create grid lines at midnight
-    gridLineWidth: 1,
-    gridLineColor: 'rgba(0, 0, 0, 0.1)',
-    tickInterval: 24 * 3600 * 1000, // One day in milliseconds
-  },
-  yAxis: [
-    {
-      title: {
-        text: 'อุณหภูมิ (°C) และ ความชื้น (%)',
-      },
-    },
-    {
-      title: {
-        text: '',
-      },
-      opposite: true,
-    },
-  ],
-  series: [
-    {
-      name: 'อุณหภูมิในเตาเผา',
-      data: data.map((point) => [point.timestamp, point.temperature]),
-      yAxis: 0,
-      type: 'spline', // You can use 'line' for simple lines
-      color: 'yellow',
-      marker: {
-        symbol: 'circle',
-        enabled: true,
-        radius: 3, // Adjust the size of the circle data points
-        fillColor: 'yellow', // Set custom color for temperature data points
-      },
-    },
-    {
-      name: 'อุณหภูมิใน Blower',
-      data: data.map((point) => [point.timestamp, point.humidity]),
-      yAxis: 0,
-      type: 'spline',
-      color: 'red',
-      marker: {
-        symbol: 'circle',
-        enabled: true,
-        radius: 3, // Adjust the size of the circle data points
-        fillColor: 'red', // Set custom color for temperature data points
-      },
-    },
-  ],
-};
-
 export default function Dashboard(props: HighchartsReact.Props) {
+
+  const [currentLocalTime, setCurrentLocalTime] = useState(new Date());
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
   const { id } = useParams();
+  const [mydata, setData] = useState([])
+  const [mydataStatus, setDataStatus] = useState([])
+  // const [mylastCycle, setlastCycle] = useState(0)
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [data ,setData] = useState([])
+  interface mydata {
+    startoven: number;
+    oven: number;
+    cycle: number;
+    humanity: number;
+    roomtemp: number;
+    oventemp?: number;
+    blower?: number;
+    time_stamp: number;
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = 'O8sVbUAiTUN6ohq3EzTPEbdy2_6CrUSwzVt1_vXnu9c';
+
+      try {
+        const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '?oven=' + id, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const jsonData = await response.json();
+        setData(jsonData);
 
 
-  // useEffect(() => {
-  //   fetch('https://jsonplaceholder.typicode.com/users')
-  //   .then(res => res.json)
-  //   .then(data => setData(data));
-  // }, [])
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-  // console.log(data);
-  
+    const fetchStatus = async () => {
+      try {
+        const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'status?oven=' + id, {
+          method: 'GET'
+        });
 
+        const jsonData = await response.json();
+        setDataStatus(jsonData);
+
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    console.log(mydataStatus);
+
+
+    fetchData();
+    fetchStatus();
+    setCurrentLocalTime(new Date());
+  }, [id]);
+
+
+  const handleDownloadClick = async () => {
+    try {
+      setIsLoading(true);
+      // const response = await axios.get('YOUR_BACKEND_API_URL/download-pdf', {
+      //   responseType: 'blob', // This indicates that the response should be treated as a binary blob
+      // });
+      let lst = mydata[mydata.length - 1].cycle;
+      let lsCycle = lst.toString()
+      const currentDate = new Date();
+
+      // const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '/pdf/?oven=' + id + '&cycle=' + lsCycle + ' &time_stamp=' + currentDate);
+      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '/pdf');
+
+      console.log(response.data);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      a.setAttribute('download', 'downloaded_file.pdf');
+      document.body.appendChild(a);
+      a.click();
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      setIsLoading(false);
+    }
+  };
+
+  // Format options for Thai locale
+  const thaiLocaleOptions = {
+    year: 'numeric',
+    month: 'long', // 'long' for full month name, 'short' for abbreviated
+    day: 'numeric',
+    hour12: false // Use 24-hour format
+  };
+
+  const thaiLocaleDatetime = {
+    year: 'numeric',
+    month: 'long', // 'long' for full month name, 'short' for abbreviated
+    day: 'numeric',
+    hour: '2-digit', // Include hours in 2-digit format (00-23)
+    minute: '2-digit', // Include minutes in 2-digit format (00-59)
+    hour12: false, // Use 24-hour format
+  };
+
+  const thaiTime = {
+    hour: '2-digit', // Include hours in 2-digit format (00-23)
+    minute: '2-digit', // Include minutes in 2-digit format (00-59)
+    hour12: false, // Use 24-hour format
+  };
+
+
+  const thaiFormattedDateTime = currentLocalTime.toLocaleString('th-TH', thaiLocaleOptions);
+
+  let chartDataRoomTemp = []
+  let chartDataHumanity = []
+  let chartDatablower = []
+  let chartDataOvenTemp = []
+
+  let statTime = '-';
+  let stopTime = '-';
+  let lastUpdateTime = '-';
+  let lastUpdateDate = '-';
+  let klinstate = 0;
+
+
+  if (mydataStatus.length) {
+      
+    klinstate = mydataStatus[0].oven_state;
+    if (klinstate === 0) {
+      const timeString = mydataStatus[mydataStatus.length - 1].time_stamp;
+      const parsedTime = new Date(timeString);
+      parsedTime.setUTCHours(parsedTime.getUTCHours() - 7);
+      stopTime = parsedTime.toLocaleString('th-TH', thaiLocaleDatetime);
+      console.log(stopTime);
+    }
+  }
+
+
+  if (mydata.length > 0) {
+    let lastCycle = mydata[mydata.length - 1].cycle;
+    let lastCycleData = mydata.filter(item => item.cycle === lastCycle);
+
+    // Start Time 
+    const timeString = mydata[0].time_stamp;
+    const parsedTime = new Date(timeString);
+    parsedTime.setUTCHours(parsedTime.getUTCHours() - 7);
+    statTime = parsedTime.toLocaleString('th-TH', thaiLocaleDatetime);
+
+    // last Updat Time 
+    const timeString2 = mydata[mydata.length - 1].time_stamp;
+    const parsedTime2 = new Date(timeString2);
+    parsedTime2.setUTCHours(parsedTime2.getUTCHours() - 7);
+    lastUpdateTime = parsedTime2.toLocaleString('th-TH', thaiTime);
+    lastUpdateTime = lastUpdateTime + ' น.'
+    lastUpdateDate = parsedTime2.toLocaleString('th-TH', thaiLocaleOptions);
+
+
+    // let test = mydataStatus[mydataStatus.length - 1].time_stamp
+    console.log(klinstate, typeof (klinstate));
+
+
+    chartDataRoomTemp = lastCycleData.map(entry => ({
+      x: new Date(entry.time_stamp).getTime(),
+      y: entry.roomtemp
+    }));
+
+    chartDataHumanity = lastCycleData.map(entry => ({
+      x: new Date(entry.time_stamp).getTime(),
+      y: entry.humanity
+    }));
+
+    chartDatablower = lastCycleData.map(entry => ({
+      x: new Date(entry.time_stamp).getTime(),
+      y: entry.blower
+    }));
+
+    chartDataOvenTemp = lastCycleData.map(entry => ({
+      x: new Date(entry.time_stamp).getTime(),
+      y: entry.oventemp
+    }));
+
+
+  }
+
+  const gp1: Highcharts.Options = {
+    chart: {
+      style: {
+        fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
+      },
+    },
+    title: {
+      text: 'อุณหภูมิและความชื้นในห้องอบ',
+    },
+    xAxis: {
+      type: 'datetime',
+      labels: {
+        formatter: function () {
+          // Format x-axis labels as per your requirement
+          return Highcharts.dateFormat('%H:%M', this.value);
+        },
+      },
+      // Add the following to create grid lines at midnight
+      gridLineWidth: 1,
+      gridLineColor: 'rgba(0, 0, 0, 0.1)',
+      tickInterval: 24 * 3600 * 1000, // One day in milliseconds
+    },
+    yAxis: [
+      {
+        title: {
+          text: 'อุณหภูมิ (°C) และ ความชื้น (%)',
+        },
+        plotLines: [
+          {
+            value: 45,
+            color: 'red', // Change the color as per your preference
+            dashStyle: 'dot',
+            width: 2,
+            label: {
+              text: 'Danger', // Label for the line
+              align: 'left',
+              x: 5,
+              style: {
+                color: 'red', // Change the color as per your preference
+              },
+            },
+          },
+        ],
+
+      },
+      {
+        title: {
+          text: '',
+        },
+        opposite: true,
+      },
+    ],
+    series: [
+      {
+        name: 'อุณหภูมิในห้องอบ',
+        data: chartDataRoomTemp,
+        yAxis: 0,
+        type: 'spline', // You can use 'line' for simple lines
+        color: 'green',
+        marker: {
+          symbol: 'circle',
+          enabled: true,
+          radius: 3, // Adjust the size of the circle data points
+          fillColor: 'green', // Set custom color for temperature data points
+        },
+      },
+      {
+        name: 'ความชื้นในห้องอบ',
+        data: chartDataHumanity,
+        yAxis: 0,
+        type: 'spline',
+        color: 'blue',
+        marker: {
+          symbol: 'circle',
+          enabled: true,
+          radius: 3, // Adjust the size of the circle data points
+          fillColor: 'blue', // Set custom color for temperature data points
+        },
+      },
+    ],
+  };
+
+  const gp2: Highcharts.Options = {
+    chart: {
+      style: {
+        fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
+      },
+    },
+    title: {
+      text: 'อุณหภูมิในเตาเผา และ Blower',
+    },
+    xAxis: {
+      type: 'datetime',
+      labels: {
+        formatter: function () {
+          // Format x-axis labels as per your requirement
+          return Highcharts.dateFormat('%H:%M', this.value);
+        },
+      },
+      // Add the following to create grid lines at midnight
+      gridLineWidth: 1,
+      gridLineColor: 'rgba(0, 0, 0, 0.1)',
+      tickInterval: 24 * 3600 * 1000, // One day in milliseconds
+    },
+    yAxis: [
+      {
+        title: {
+          text: 'อุณหภูมิในเตาเผา (°C) </br> และ อุณหภูมิใน Blower (°C)',
+        },
+      },
+      {
+        title: {
+          text: '',
+        },
+        opposite: true,
+      },
+    ],
+    series: [
+      {
+        name: 'อุณหภูมิในเตาเผา',
+        data: chartDataOvenTemp,
+        yAxis: 0,
+        type: 'spline', // You can use 'line' for simple lines
+        color: 'yellow',
+        marker: {
+          symbol: 'circle',
+          enabled: true,
+          radius: 3, // Adjust the size of the circle data points
+          fillColor: 'yellow', // Set custom color for temperature data points
+        },
+      },
+      {
+        name: 'อุณหภูมิใน Blower',
+        data: chartDatablower,
+        yAxis: 0,
+        type: 'spline',
+        color: 'red',
+        marker: {
+          symbol: 'circle',
+          enabled: true,
+          radius: 3, // Adjust the size of the circle data points
+          fillColor: 'red', // Set custom color for temperature data points
+        },
+      },
+    ],
+  };
 
   return (
 
@@ -224,14 +372,14 @@ export default function Dashboard(props: HighchartsReact.Props) {
               <Card className="mb-3">
                 <Card.Body className="card-body-h">
                   <div className="dt-blower">
-                    <span className="fn-20 p-2 float-start " >วันที่  : 30 มิ.ย. 2566</span>
+                    <span className="fn-20 p-2 float-start " >วันที่  : {thaiFormattedDateTime}</span>
                     <span className="fn-20 p-2 float-end" >หมายเลขเตา : {id}</span>
                   </div>
                   <div className="tm-onoff">
-                    <span className="fn-20 p-2 align-baseline" >เวลาเปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >08:00 น. / 30 มิ.ย. 2566</span>
+                    <span className="fn-20 p-2 align-baseline" >เวลาเปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >{statTime}</span>
                   </div>
                   <div className="tm-onoff">
-                    <span className="fn-20 p-2 align-baseline" >เวลาปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >08:00 น. / 30 มิ.ย. 2566</span>
+                    <span className="fn-20 p-2 align-baseline" >เวลาปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >{stopTime}</span>
                   </div>
                 </Card.Body>
               </Card>
@@ -246,21 +394,21 @@ export default function Dashboard(props: HighchartsReact.Props) {
                   <div className="row">
                     <div className="col-md-12 mt-4">
                       <div className="center fn-20">
-                        <span className="float-start ms-4 " >08:00 น.</span>
-                        <span className="float-end me-4 " >30 มิ.ย. 2566</span>
+                        <span className="float-start ms-4 " >{lastUpdateTime}</span>
+                        <span className="float-end me-4 " >{lastUpdateDate}</span>
                       </div>
                     </div>
 
                     <div className="col-md-12 mt-4">
                       <div className="fn-20 ">
                         <span className="float-start ms-4 align-baseline" >สถานะเตา</span>
-                        <span className="float-end me-4 align-baseline" ><button type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", width: "8rem" }} >เปิด</button></span>
+                        <span className="float-end me-4 align-baseline" ><button type="button" className={klinstate === 1 ? 'btn btn-primary text-black stateklinYello' : 'btn btn-primary text-black stateklinRed'} >{klinstate === 1 ? 'เปิด' : 'ปิด'}</button></span>
                       </div>
                     </div>
 
                     <div className="col-md-12 mt-4">
                       <div className="fn-20 ms-4 me-4 d-grid align-baseline" >
-                        <button type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }} >Dowload now</button>
+                        <button onClick={handleDownloadClick} disabled={isLoading} type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }} > {isLoading ? 'กำลังดาวโหลด...' : 'ดาวโหลดตอนนี้ '}</button>
                       </div>
                     </div>
                   </div>

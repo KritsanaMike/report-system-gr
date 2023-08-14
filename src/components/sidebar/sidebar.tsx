@@ -14,7 +14,7 @@ let activeClassName = "activeClicked";
 
 
 export default function Sidebars() {
-  const items = Array.from({ length: 16 }, (_, index) => `/${index + 10}`);
+  const items = Array.from({ length: 16 }, (_, index) => `/${index + 11}`);
   return (
     <div
       style={{ display: "flex", height: "100vh", overflow: "scroll initial" }}
@@ -32,11 +32,11 @@ export default function Sidebars() {
 
         <CDBSidebarContent className="sidebar-content">
           <CDBSidebarMenu>
-            <CDBSidebarMenuItem icon="home">Dashboard</CDBSidebarMenuItem>
+            {/* <CDBSidebarMenuItem icon="home">Dashboard</CDBSidebarMenuItem> */}
 
             {items.map((item, index) => (
               <NavLink
-                to={"/blower" + item}
+                to={"/kiln" + item}
                 className={({ isActive }) =>
                   isActive ? activeClassName : undefined
                 }
@@ -55,7 +55,7 @@ export default function Sidebars() {
           </CDBSidebarMenu>
         </CDBSidebarContent>
 
-        <CDBSidebarFooter style={{ textAlign: "center", }}> 55 </CDBSidebarFooter>
+        <CDBSidebarFooter style={{ textAlign: "center", }} className="mt-3 mb-3" > COPYRIGHT © 2023 GRAND RUBBER CO., LTD </CDBSidebarFooter>
       </CDBSidebar>
     </div>
   );
