@@ -31,93 +31,38 @@ function paginator(items, current_page, per_page_items) {
   };
 }
 
-// export const Listfile = ({ itemsPerPage }: DataTableProps) =>{
-// 
-
-// interface SensorData {
-//   startoven: number;
-//   oven: number;
-//   cycle: number;
-//   humanity: number;
-//   roomtemp: number;
-//   oventemp?: number;
-//   blower?: number;
-//   time_stamp: number;
-// }
 
 export default function Listfile({ itemsPerPage }: DataTableProps) {
-
-
-
-
   const { fileid } = useParams();
   const [mydata, setData] = useState([])
-  // const [ovenData, setOvenData] = useState<SensorData[]>([]);
-  // const [selectedOven, setSelectedOven] = useState<number | null>(null);
-  console.log(fileid);
-
-
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     console.log(6666);
     const fetchData = async () => {
-      const token = 'O8sVbUAiTUN6ohq3EzTPEbdy2_6CrUSwzVt1_vXnu9c';
-
       try {
-        const response = await fetch(import.meta.env.VITE_API_ENDPOINT+'?oven='+fileid, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'list_pdf_file/' + fileid, {
+          method: 'GET'
         });
 
-        const jsonData = await response.json();
-        setData(jsonData);
-        
-        
+        if(response){
+          const jsonData = await response.json();
+          setData(jsonData);
+  
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        setData([]);
+        console.error('Error fetching data:');
       }
     };
-   
-    
+
+
 
     fetchData();
     console.log(mydata);
-    
-    
+
+
   }, [fileid]);
-
-  const carrierDetails = [
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-    {
-      name: "วันที่ 26 มกราคม 2566",
-    },
-
-  ];
 
   const count = Math.ceil(mydata.length / 3);
   const [page, setPage] = React.useState(1);
@@ -135,7 +80,30 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
     }
     setChecked([...prev]);
   };
-  console.log(checked);
+
+
+  const handleDownloadClick = async (id: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf/' + id);
+
+      console.log(response.data);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      a.setAttribute('download', 'download.pdf');
+      document.body.appendChild(a);
+      a.click();
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="d-flex">
@@ -157,7 +125,7 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
           <div>
             {" "}
             {/* content */}
-            <p className="fn-40" style={{ color: "#EED236" }}>
+            <p className="fn-40 GFG" style={{ color: "#EED236" }}>
               ไฟล์ เตา {fileid}
             </p>
           </div>
@@ -176,6 +144,22 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
               }}
             >
               {paginator(mydata, page, 3).data.map((value, index) => {
+                 const startIndex = value.filename.lastIndexOf('/') + 1; // Find the index of the last slash
+                 const extractedFileName = value.filename.substring(startIndex); // Extract the file name
+
+                 const thaiLocaleDatetime = {
+                  year: 'numeric',
+                  month: 'long', // 'long' for full month name, 'short' for abbreviated
+                  day: 'numeric',
+                  hour: '2-digit', // Include hours in 2-digit format (00-23)
+                  minute: '2-digit', // Include minutes in 2-digit format (00-59)
+                  hour12: false, // Use 24-hour format
+                };
+                const timeString = value.time_stamp;
+                const parsedTime = new Date(timeString);
+                parsedTime.setUTCHours(parsedTime.getUTCHours() - 7);
+                const times = parsedTime.toLocaleString('th-TH', thaiLocaleDatetime);
+               
                 return (
                   <ListItem
                     alignItems="flex-start"
@@ -185,11 +169,15 @@ export default function Listfile({ itemsPerPage }: DataTableProps) {
                       primary={value.carrierName}
                       secondary={
                         <React.Fragment>
-                          <Stack direction="column" spacing={1}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div className="p-2">
-                              <b>Name</b> {value.humanity + " : " + index}
+                              <b className="fn-18">ไฟล์ที่ {index+1} :</b> <span className="fn-18">{extractedFileName} ({times})</span>
                             </div>
-                          </Stack>
+                            <div>
+                              {/* <button type="button" className="btn btn-primary"> ดาวโหลด  <i className="fa fa-download" aria-hidden="true"></i></button> */}
+                              <button onClick={() => handleDownloadClick(value.id)} disabled={isLoading} type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }}> {isLoading ? 'กำลังดาวโหลด...' : 'ดาวโหลด '}</button>
+                            </div>
+                          </div>
                         </React.Fragment>
                       }
                     />

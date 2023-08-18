@@ -83,7 +83,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
       let lsCycle = lst.toString()
       const currentDate = new Date();
 
-      // const response = await fetch(import.meta.env.VITE_API_ENDPOINT + '/pdf/?oven=' + id + '&cycle=' + lsCycle + ' &time_stamp=' + currentDate);
       const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf?oven=' + id + '&cycle=' + lsCycle);
 
       console.log(response.data);

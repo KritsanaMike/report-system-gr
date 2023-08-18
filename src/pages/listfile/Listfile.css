@@ -1,9 +1,16 @@
-
-.Mui-selected{
+.Mui-selected {
     background-color: #EED236 !important;
     border-radius: unset !important;
 }
-.MuiPaginationItem-circular:hover{
+
+.MuiPaginationItem-circular:hover {
     /* background-color: #EED236 !important; */
     border-radius: unset !important;
+}
+
+.GFG {
+    color: white;
+    font-size: 50px;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-stroke-color: black;
 }
