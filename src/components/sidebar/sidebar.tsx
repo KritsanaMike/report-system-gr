@@ -1,5 +1,5 @@
 import React from "react";
-import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
+// import { Sidebar, Menu, MenuItem, SubMenu } from "react-pro-sidebar";
 import {
   CDBSidebar,
   CDBSidebarContent,
@@ -10,7 +10,7 @@ import {
 } from "cdbreact";
 import { NavLink } from "react-router-dom";
 import "./sidebar.css";
-let activeClassName = "activeClicked";
+const activeClassName = "activeClicked";
 
 
 export default function Sidebars() {
@@ -19,23 +19,21 @@ export default function Sidebars() {
     <div
       style={{ display: "flex", height: "100vh", overflow: "scroll initial" }}
     >
-      <CDBSidebar textColor="#fff" backgroundColor="#1A1A19">
+      <CDBSidebar textColor="#fff" backgroundColor="#1A1A19" className={""} breakpoint={0} toggled={false} minWidth={"5rem"} maxWidth={"17rem"}>
         <CDBSidebarHeader prefix={<i className="fa fa-bars fa-large "></i>}>
-          <a
-            href="/"
+          <span
             className="text-decoration-none logo fn-30"
             style={{ color: "#EED236" }}
           >
             GR
-          </a>
+          </span>
         </CDBSidebarHeader>
 
         <CDBSidebarContent className="sidebar-content">
           <CDBSidebarMenu>
-            {/* <CDBSidebarMenuItem icon="home">Dashboard</CDBSidebarMenuItem> */}
-
             {items.map((item, index) => (
               <NavLink
+                key={item}
                 to={"/kiln" + item}
                 className={({ isActive }) =>
                   isActive ? activeClassName : undefined
@@ -55,7 +53,7 @@ export default function Sidebars() {
           </CDBSidebarMenu>
         </CDBSidebarContent>
 
-        <CDBSidebarFooter style={{ textAlign: "center", }} className="mt-3 mb-3" > COPYRIGHT © 2023 GRAND RUBBER CO., LTD </CDBSidebarFooter>
+        <CDBSidebarFooter className="mt-3 mb-3 center" > COPYRIGHT © 2023 GRAND RUBBER CO., LTD </CDBSidebarFooter>
       </CDBSidebar>
     </div>
   );

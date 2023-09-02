@@ -7,13 +7,33 @@ import * as Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import { useParams } from 'react-router-dom';
 
+interface MyDataItem {
+  blower: number,
+  cycle: number,
+  humanity: number,
+  id: number,
+  oven: number,
+  oventemp: number,
+  roomtemp: number,
+  startoven: number,
+  status_pdf: number,
+  time_stamp: string
+}
+interface MyDataStatusItem {
+  cycle: number,
+  id: number,
+  oven: number,
+  oven_state: number,
+  time_stamp: string
+}
+
 export default function Dashboard(props: HighchartsReact.Props) {
 
   const [currentLocalTime, setCurrentLocalTime] = useState(new Date());
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
   const { id } = useParams();
-  const [mydata, setData] = useState([])
-  const [mydataStatus, setDataStatus] = useState([])
+  const [mydata, setData] = useState<MyDataItem[]>([]);
+  const [mydataStatus, setDataStatus] = useState<MyDataStatusItem[]>([]);
   // const [mylastCycle, setlastCycle] = useState(0)
   const [isLoading, setIsLoading] = useState(false);
 
@@ -64,8 +84,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
       }
     };
 
-    console.log(mydataStatus);
-
+    // console.log(mydataStatus);
 
     fetchData();
     fetchStatus();
@@ -79,13 +98,17 @@ export default function Dashboard(props: HighchartsReact.Props) {
       // const response = await axios.get('YOUR_BACKEND_API_URL/download-pdf', {
       //   responseType: 'blob', // This indicates that the response should be treated as a binary blob
       // });
-      let lst = mydata[mydata.length - 1].cycle;
-      let lsCycle = lst.toString()
-      const currentDate = new Date();
+      console.log(typeof (mydata[mydata.length - 1]));
+
+
+      // const lst = mydata[mydata.length - 1].cycle;
+      const lst = mydata[mydata.length - 1].cycle;
+      const lsCycle = lst.toString()
+      // const currentDate = new Date();
 
       const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf?oven=' + id + '&cycle=' + lsCycle);
 
-      console.log(response.data);
+      // console.log(response.data);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -103,14 +126,15 @@ export default function Dashboard(props: HighchartsReact.Props) {
   };
 
   // Format options for Thai locale
-  const thaiLocaleOptions = {
+  const thaiLocaleOptions: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long', // 'long' for full month name, 'short' for abbreviated
     day: 'numeric',
+    weekday: 'long', // Display the full day name
     hour12: false // Use 24-hour format
   };
 
-  const thaiLocaleDatetime = {
+  const thaiLocaleDatetime: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long', // 'long' for full month name, 'short' for abbreviated
     day: 'numeric',
@@ -119,19 +143,18 @@ export default function Dashboard(props: HighchartsReact.Props) {
     hour12: false, // Use 24-hour format
   };
 
-  const thaiTime = {
+  const thaiTime: Intl.DateTimeFormatOptions = {
     hour: '2-digit', // Include hours in 2-digit format (00-23)
     minute: '2-digit', // Include minutes in 2-digit format (00-59)
     hour12: false, // Use 24-hour format
   };
 
-
   const thaiFormattedDateTime = currentLocalTime.toLocaleString('th-TH', thaiLocaleOptions);
 
-  let chartDataRoomTemp = []
-  let chartDataHumanity = []
-  let chartDatablower = []
-  let chartDataOvenTemp = []
+  let chartDataRoomTemp: { x: number; y: number; }[] = []
+  let chartDataHumanity: { x: number; y: number; }[] = []
+  let chartDatablower: { x: number; y: number; }[] = []
+  let chartDataOvenTemp: { x: number; y: number; }[] = []
 
   let statTime = '-';
   let stopTime = '-';
@@ -141,21 +164,22 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
 
   if (mydataStatus.length) {
-      
+
     klinstate = mydataStatus[0].oven_state;
     if (klinstate === 0) {
       const timeString = mydataStatus[mydataStatus.length - 1].time_stamp;
       const parsedTime = new Date(timeString);
       parsedTime.setUTCHours(parsedTime.getUTCHours() - 7);
       stopTime = parsedTime.toLocaleString('th-TH', thaiLocaleDatetime);
-      console.log(stopTime);
+      // console.log(stopTime);
     }
   }
 
 
   if (mydata.length > 0) {
-    let lastCycle = mydata[mydata.length - 1].cycle;
-    let lastCycleData = mydata.filter(item => item.cycle === lastCycle);
+    const lastCycle = mydata[mydata.length - 1].cycle;
+    // const lastCycleData = mydata.filter(item => item.cycle === lastCycle);
+    const lastCycleData: MyDataItem[] = mydata.filter((item: MyDataItem) => item.cycle === lastCycle);
 
     // Start Time 
     const timeString = mydata[0].time_stamp;
@@ -171,11 +195,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
     lastUpdateTime = lastUpdateTime + ' น.'
     lastUpdateDate = parsedTime2.toLocaleString('th-TH', thaiLocaleOptions);
 
-
-    // let test = mydataStatus[mydataStatus.length - 1].time_stamp
-    console.log(klinstate, typeof (klinstate));
-
-
+    // Map lastCycleData to chartDataRoomTemp
     chartDataRoomTemp = lastCycleData.map(entry => ({
       x: new Date(entry.time_stamp).getTime(),
       y: entry.roomtemp
@@ -212,8 +232,11 @@ export default function Dashboard(props: HighchartsReact.Props) {
       type: 'datetime',
       labels: {
         formatter: function () {
+          // If this.value is a string, convert it to a number
+          const valueAsNumber = typeof this.value === 'string' ? parseInt(this.value) : this.value;
+
           // Format x-axis labels as per your requirement
-          return Highcharts.dateFormat('%H:%M', this.value);
+          return Highcharts.dateFormat('%H:%M', valueAsNumber);
         },
       },
       // Add the following to create grid lines at midnight
@@ -228,9 +251,9 @@ export default function Dashboard(props: HighchartsReact.Props) {
         },
         plotLines: [
           {
-            value: 45,
+            value: 50,
             color: 'red', // Change the color as per your preference
-            dashStyle: 'dot',
+            dashStyle: 'Dot',
             width: 2,
             label: {
               text: 'Danger', // Label for the line
@@ -295,7 +318,9 @@ export default function Dashboard(props: HighchartsReact.Props) {
       labels: {
         formatter: function () {
           // Format x-axis labels as per your requirement
-          return Highcharts.dateFormat('%H:%M', this.value);
+          const valueAsNumber = typeof this.value === 'string' ? parseInt(this.value) : this.value;
+
+          return Highcharts.dateFormat('%H:%M', valueAsNumber);
         },
       },
       // Add the following to create grid lines at midnight
@@ -322,12 +347,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
         data: chartDataOvenTemp,
         yAxis: 0,
         type: 'spline', // You can use 'line' for simple lines
-        color: 'yellow',
+        color: 'red',
         marker: {
           symbol: 'circle',
           enabled: true,
           radius: 3, // Adjust the size of the circle data points
-          fillColor: 'yellow', // Set custom color for temperature data points
+          fillColor: 'red', // Set custom color for temperature data points
         },
       },
       {
@@ -335,12 +360,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
         data: chartDatablower,
         yAxis: 0,
         type: 'spline',
-        color: 'red',
+        color: 'yellow',
         marker: {
           symbol: 'circle',
           enabled: true,
           radius: 3, // Adjust the size of the circle data points
-          fillColor: 'red', // Set custom color for temperature data points
+          fillColor: 'yellow', // Set custom color for temperature data points
         },
       },
     ],
@@ -371,7 +396,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
               <Card className="mb-3">
                 <Card.Body className="card-body-h">
                   <div className="dt-blower">
-                    <span className="fn-20 p-2 float-start " >วันที่  : {thaiFormattedDateTime}</span>
+                    <span className="fn-20 p-2 float-start " >{thaiFormattedDateTime}</span>
                     <span className="fn-20 p-2 float-end" >หมายเลขเตา : {id}</span>
                   </div>
                   <div className="tm-onoff">
@@ -504,7 +529,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
           {/* data 1*/}
 
           {/* data 2*/}
-          <div className="row">
+          {/* <div className="row">
             <div className="col-md-3">
               <Card className="mb-3">
                 <Card.Body className="">
@@ -538,7 +563,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
               </Card>
             </div>
 
-          </div>
+          </div> */}
           {/* data 2*/}
 
         </div>
