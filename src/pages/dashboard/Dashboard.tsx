@@ -19,6 +19,7 @@ interface MyDataItem {
   status_pdf: number,
   time_stamp: string
 }
+
 interface MyDataStatusItem {
   cycle: number,
   id: number,
@@ -34,7 +35,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
   const { id } = useParams();
   const [mydata, setData] = useState<MyDataItem[]>([]);
   const [mydataStatus, setDataStatus] = useState<MyDataStatusItem[]>([]);
-  // const [mylastCycle, setlastCycle] = useState(0)
   const [isLoading, setIsLoading] = useState(false);
 
   interface mydata {
@@ -130,7 +130,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
     year: 'numeric',
     month: 'long', // 'long' for full month name, 'short' for abbreviated
     day: 'numeric',
-    weekday: 'long', // Display the full day name
+    // weekday: 'long', // Display the full day name
     hour12: false // Use 24-hour format
   };
 
@@ -161,10 +161,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
   let lastUpdateTime = '-';
   let lastUpdateDate = '-';
   let klinstate = 0;
-
+  let lastTemproom = 0.0;
+  let lastHumidroom = 0.0;
+  let lastTempklin = 0.0;
+  let lastTempblower = 0.0;
 
   if (mydataStatus.length) {
-
     klinstate = mydataStatus[0].oven_state;
     if (klinstate === 0) {
       const timeString = mydataStatus[mydataStatus.length - 1].time_stamp;
@@ -174,7 +176,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
       // console.log(stopTime);
     }
   }
-
 
   if (mydata.length > 0) {
     const lastCycle = mydata[mydata.length - 1].cycle;
@@ -194,6 +195,18 @@ export default function Dashboard(props: HighchartsReact.Props) {
     lastUpdateTime = parsedTime2.toLocaleString('th-TH', thaiTime);
     lastUpdateTime = lastUpdateTime + ' น.'
     lastUpdateDate = parsedTime2.toLocaleString('th-TH', thaiLocaleOptions);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    lastTemproom = mydata[mydata.length - 1].roomtemp;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    lastHumidroom = mydata[mydata.length - 1].humanity;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    lastTempklin = mydata[mydata.length - 1].blower;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    lastTempblower = mydata[mydata.length - 1].oventemp;
+
+    console.log("debug", lastTemproom);
+
 
     // Map lastCycleData to chartDataRoomTemp
     chartDataRoomTemp = lastCycleData.map(entry => ({
@@ -215,12 +228,26 @@ export default function Dashboard(props: HighchartsReact.Props) {
       x: new Date(entry.time_stamp).getTime(),
       y: entry.oventemp
     }));
-
-
   }
+
+  Highcharts.setOptions({
+    lang: {
+      decimalPoint: '.',
+      thousandsSep: ',',
+      months: [
+        'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+        'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+      ],
+      weekdays: [
+        'อาทิตย์', 'จันทร์', 'อังคาร', 'พุธ', 'พฤหัสบดี', 'ศุกร์', 'เสาร์'
+      ],
+      // ...other language options as needed
+    }
+  });
 
   const gp1: Highcharts.Options = {
     chart: {
+      type: 'line',
       style: {
         fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
       },
@@ -236,7 +263,8 @@ export default function Dashboard(props: HighchartsReact.Props) {
           const valueAsNumber = typeof this.value === 'string' ? parseInt(this.value) : this.value;
 
           // Format x-axis labels as per your requirement
-          return Highcharts.dateFormat('%H:%M', valueAsNumber);
+          // return Highcharts.dateFormat('%D-%M-%Y %H:%M:%S', valueAsNumber);
+          return Highcharts.dateFormat('%e %b %Y', valueAsNumber);
         },
       },
       // Add the following to create grid lines at midnight
@@ -246,17 +274,34 @@ export default function Dashboard(props: HighchartsReact.Props) {
     },
     yAxis: [
       {
+        min: 0,
+        max: 100,
+        tickInterval: 10,
         title: {
           text: 'อุณหภูมิ (°C) และ ความชื้น (%)',
         },
         plotLines: [
           {
-            value: 50,
+            value: 30,
             color: 'red', // Change the color as per your preference
             dashStyle: 'Dot',
             width: 2,
             label: {
-              text: 'Danger', // Label for the line
+              text: 'Lower', // Label for the line
+              align: 'left',
+              x: 5,
+              style: {
+                color: 'red', // Change the color as per your preference
+              },
+            },
+          },
+          {
+            value: 60,
+            color: 'red', // Change the color as per your preference
+            dashStyle: 'Dot',
+            width: 2,
+            label: {
+              text: 'Upper', // Label for the line
               align: 'left',
               x: 5,
               style: {
@@ -265,7 +310,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
             },
           },
         ],
-
       },
       {
         title: {
@@ -280,12 +324,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
         data: chartDataRoomTemp,
         yAxis: 0,
         type: 'spline', // You can use 'line' for simple lines
-        color: 'green',
+        color: 'red',
         marker: {
           symbol: 'circle',
           enabled: true,
           radius: 3, // Adjust the size of the circle data points
-          fillColor: 'green', // Set custom color for temperature data points
+          fillColor: 'red', // Set custom color for temperature data points
         },
       },
       {
@@ -293,12 +337,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
         data: chartDataHumanity,
         yAxis: 0,
         type: 'spline',
-        color: 'blue',
+        color: 'orange',
         marker: {
           symbol: 'circle',
           enabled: true,
           radius: 3, // Adjust the size of the circle data points
-          fillColor: 'blue', // Set custom color for temperature data points
+          fillColor: 'orange', // Set custom color for temperature data points
         },
       },
     ],
@@ -306,6 +350,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
   const gp2: Highcharts.Options = {
     chart: {
+      type: 'line',
       style: {
         fontFamily: 'Prompt, sans-serif', // Set the font family for the chart
       },
@@ -320,7 +365,8 @@ export default function Dashboard(props: HighchartsReact.Props) {
           // Format x-axis labels as per your requirement
           const valueAsNumber = typeof this.value === 'string' ? parseInt(this.value) : this.value;
 
-          return Highcharts.dateFormat('%H:%M', valueAsNumber);
+          // return Highcharts.dateFormat('%H:%M', valueAsNumber);
+          return Highcharts.dateFormat('%e %b %Y', valueAsNumber);
         },
       },
       // Add the following to create grid lines at midnight
@@ -330,6 +376,9 @@ export default function Dashboard(props: HighchartsReact.Props) {
     },
     yAxis: [
       {
+        min: 0,
+        max: 500,
+        tickInterval: 50,
         title: {
           text: 'อุณหภูมิในเตาเผา (°C) </br> และ อุณหภูมิใน Blower (°C)',
         },
@@ -360,12 +409,12 @@ export default function Dashboard(props: HighchartsReact.Props) {
         data: chartDatablower,
         yAxis: 0,
         type: 'spline',
-        color: 'yellow',
+        color: 'orange',
         marker: {
           symbol: 'circle',
           enabled: true,
           radius: 3, // Adjust the size of the circle data points
-          fillColor: 'yellow', // Set custom color for temperature data points
+          fillColor: 'orange', // Set custom color for temperature data points
         },
       },
     ],
@@ -396,7 +445,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
               <Card className="mb-3">
                 <Card.Body className="card-body-h">
                   <div className="dt-blower">
-                    <span className="fn-20 p-2 float-start " >{thaiFormattedDateTime}</span>
+                    <span className="fn-20 p-2 float-start " >วันที่ {thaiFormattedDateTime}</span>
                     <span className="fn-20 p-2 float-end" >หมายเลขเตา : {id}</span>
                   </div>
                   <div className="tm-onoff">
@@ -442,7 +491,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
           </div>
           {/* header information */}
 
-
           {/* graph 1*/}
           <div className="row">
             <div className="col-md-12">
@@ -477,8 +525,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
           </div>
           {/* graph 2*/}
 
-
-
           {/* data 1*/}
           <div className="row">
             <div className="col-md-3">
@@ -486,7 +532,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
                 <Card.Body className="">
                   <div>
                     <span className="fn-18">อุณหภูมิในห้องอบ  (องศา)</span>
-                    <p className="fn-30 mb-none" style={{ color: "#24AF0D" }}>45.2</p>
+                    <p className="fn-30 mb-none" style={{ color: "#DA1A00" }}>{lastTemproom ? lastTemproom : "0"}</p>
                   </div>
                 </Card.Body>
               </Card>
@@ -497,7 +543,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
                 <Card.Body className="">
                   <div>
                     <span className="fn-18">ความชื้นในห้องอบ  (องศา)</span>
-                    <p className="fn-30 mb-none" style={{ color: "#004EDA" }}>45.2</p>
+                    <p className="fn-30 mb-none" style={{ color: "#fd7e14" }}>{lastHumidroom ? lastHumidroom : "0"}</p>
                   </div>
                 </Card.Body>
               </Card>
@@ -508,7 +554,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
                 <Card.Body className="">
                   <div>
                     <span className="fn-18">อุณหภูมิในเตาเผา  (องศา)</span>
-                    <p className="fn-30 mb-none" style={{ color: "#DA1A00" }}>45.2</p>
+                    <p className="fn-30 mb-none" style={{ color: "#DA1A00" }}>{lastTempklin ? lastTempklin : "0"}</p>
                   </div>
                 </Card.Body>
               </Card>
@@ -519,7 +565,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
                 <Card.Body className="">
                   <div>
                     <span className="fn-18">อุณหภูมิในเตาเผา  (องศา)</span>
-                    <p className="fn-30 mb-none" style={{ color: "#EED236" }}>45.2</p>
+                    <p className="fn-30 mb-none" style={{ color: "#fd7e14" }}>{lastTempblower ? lastTempblower : "0"}</p>
                   </div>
                 </Card.Body>
               </Card>
@@ -527,44 +573,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
           </div>
           {/* data 1*/}
-
-          {/* data 2*/}
-          {/* <div className="row">
-            <div className="col-md-3">
-              <Card className="mb-3">
-                <Card.Body className="">
-                  <div>
-                    <span className="fn-18">AB</span>
-                    <p className="fn-30 mb-none" style={{ color: "#EED236" }}>45.2</p>
-                  </div>
-                </Card.Body>
-              </Card>
-            </div>
-
-            <div className="col-md-3">
-              <Card className="mb-3">
-                <Card.Body className="">
-                  <div>
-                    <span className="fn-18">BC</span>
-                    <p className="fn-30 mb-none" style={{ color: "#EED236" }}>45.2</p>
-                  </div>
-                </Card.Body>
-              </Card>
-            </div>
-
-            <div className="col-md-3">
-              <Card className="mb-3">
-                <Card.Body className="">
-                  <div>
-                    <span className="fn-18">CD</span>
-                    <p className="fn-30 mb-none" style={{ color: "#EED236" }}>45.2</p>
-                  </div>
-                </Card.Body>
-              </Card>
-            </div>
-
-          </div> */}
-          {/* data 2*/}
 
         </div>
 
