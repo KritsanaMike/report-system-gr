@@ -92,23 +92,27 @@ export default function Dashboard(props: HighchartsReact.Props) {
   }, [id]);
 
 
+  const incrementCount = () => {
+    const id_klin = Number(id) as number;
+    if (id_klin >= 11 && id_klin <= 17) {
+      return 1;
+    } else if (id_klin >= 18 && id_klin <= 26) {
+      return 2;
+    }
+  };
+
   const handleDownloadClick = async () => {
     try {
       setIsLoading(true);
-      // const response = await axios.get('YOUR_BACKEND_API_URL/download-pdf', {
-      //   responseType: 'blob', // This indicates that the response should be treated as a binary blob
-      // });
-      console.log(typeof (mydata[mydata.length - 1]));
+      const pdfPages = await incrementCount();
+      console.log(pdfPages);
 
-
-      // const lst = mydata[mydata.length - 1].cycle;
       const lst = mydata[mydata.length - 1].cycle;
       const lsCycle = lst.toString()
-      // const currentDate = new Date();
 
-      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf?oven=' + id + '&cycle=' + lsCycle);
+      const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'pdf?oven=' + id + '&cycle=' + lsCycle + '&page=' + pdfPages);
 
-      // console.log(response.data);
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
