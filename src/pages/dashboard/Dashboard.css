@@ -69,3 +69,47 @@
     border: none !important;
     width: 8rem !important;
 }
+
+.my-space-date {
+    margin-right: 5rem;
+}
+
+.my-space-klin {
+    margin-right: 6rem;
+}
+
+@media only screen and (max-width: 1280px) {
+    .my-dt {
+        font-size: 0.9rem !important;
+    }
+    .my-kl {
+        font-size: 0.9rem !important;
+    }
+    .tm-onoff {
+        padding: 0px !important;
+    }
+    .state_on_of {
+        margin-left: 0px !important;
+    }
+    .my-space-date {
+        margin-right: 3rem;
+    }
+    .my-space-klin {
+        margin-right: 2rem;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .btn-load {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+    .my-space-date {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+    .my-space-klin {
+        margin-left: 0px !important;
+        margin-right: 0px !important;
+    }
+}

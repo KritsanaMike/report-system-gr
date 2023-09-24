@@ -64,7 +64,6 @@ interface DataItem {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    console.log(6666);
     const fetchData = async () => {
       try {
         const response = await fetch(import.meta.env.VITE_API_ENDPOINT + 'list_pdf_file/' + fileid, {
@@ -83,7 +82,6 @@ interface DataItem {
     };
 
     fetchData();
-    console.log(mydata);
   }, [fileid]);
 
   const count = Math.ceil(mydata.length / 10);

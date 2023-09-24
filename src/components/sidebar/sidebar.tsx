@@ -30,13 +30,13 @@ export default function Sidebars() {
         </CDBSidebarHeader>
 
         <CDBSidebarContent className="sidebar-content">
-          <CDBSidebarMenu>
+          <CDBSidebarMenu className="nv">
             {items.map((item, index) => (
               <NavLink
                 key={item}
                 to={"/kiln" + item}
                 className={({ isActive }) =>
-                  isActive ? activeClassName : undefined
+                  isActive? activeClassName: undefined
                 }
               >
                 <CDBSidebarMenuItem icon="table" className="pd-menu">

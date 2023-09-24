@@ -32,7 +32,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
   const [currentLocalTime, setCurrentLocalTime] = useState(new Date());
   const chartComponentRef = useRef<HighchartsReact.RefObject>(null);
-  const { id } = useParams();
+  const { id = 11 } = useParams();
   const [mydata, setData] = useState<MyDataItem[]>([]);
   const [mydataStatus, setDataStatus] = useState<MyDataStatusItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,8 +84,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
       }
     };
 
-    // console.log(mydataStatus);
-
     fetchData();
     fetchStatus();
     setCurrentLocalTime(new Date());
@@ -105,7 +103,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
     try {
       setIsLoading(true);
       const pdfPages = await incrementCount();
-      console.log(pdfPages);
 
       const lst = mydata[mydata.length - 1].cycle;
       const lsCycle = lst.toString()
@@ -177,7 +174,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
       const parsedTime = new Date(timeString);
       parsedTime.setUTCHours(parsedTime.getUTCHours() - 7);
       stopTime = parsedTime.toLocaleString('th-TH', thaiLocaleDatetime);
-      // console.log(stopTime);
     }
   }
 
@@ -208,9 +204,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
     lastTempklin = mydata[mydata.length - 1].blower;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     lastTempblower = mydata[mydata.length - 1].oventemp;
-
-    console.log("debug", lastTemproom);
-
 
     // Map lastCycleData to chartDataRoomTemp
     chartDataRoomTemp = lastCycleData.map(entry => ({
@@ -386,6 +379,36 @@ export default function Dashboard(props: HighchartsReact.Props) {
         title: {
           text: 'อุณหภูมิในเตาเผา (°C) </br> และ อุณหภูมิใน Blower (°C)',
         },
+        plotLines: [
+          {
+            value: 150,
+            color: 'red', // Change the color as per your preference
+            dashStyle: 'Dot',
+            width: 2,
+            label: {
+              text: 'Lower', // Label for the line
+              align: 'left',
+              x: 5,
+              style: {
+                color: 'red', // Change the color as per your preference
+              },
+            },
+          },
+          {
+            value: 450,
+            color: 'red', // Change the color as per your preference
+            dashStyle: 'Dot',
+            width: 2,
+            label: {
+              text: 'Upper', // Label for the line
+              align: 'left',
+              x: 5,
+              style: {
+                color: 'red', // Change the color as per your preference
+              },
+            },
+          },
+        ],
       },
       {
         title: {
@@ -424,7 +447,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
     ],
   };
 
-  return (
+  return klinstate === 1 ? (
 
     <div className="d-flex">
       <div>
@@ -445,49 +468,46 @@ export default function Dashboard(props: HighchartsReact.Props) {
         <div className="p-4 overflow-auto">
           {/* header information */}
           <div className="row">
-            <div className="col-md-8">
+            <div className="col-12 col-sm-12 col-md-12 col-lg-8">
               <Card className="mb-3">
-                <Card.Body className="card-body-h">
-                  <div className="dt-blower">
-                    <span className="fn-20 p-2 float-start " >วันที่ {thaiFormattedDateTime}</span>
-                    <span className="fn-20 p-2 float-end" >หมายเลขเตา : {id}</span>
+                <div className="card-body" >
+                  <div className="d-flex justify-content-between align-items-center dt-blower">
+                    <span className="fs-5 p-2 float-start my-dt" >วันที่ {thaiFormattedDateTime}</span>
+                    <span className="fs-5 p-2 float-end my-kl ">หมายเลขเตา : {id}</span>
                   </div>
-                  <div className="tm-onoff">
-                    <span className="fn-20 p-2 align-baseline" >เวลาเปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >{statTime}</span>
+
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-start ms-5 mt-3 state_on_of">
+                    <span className="fs-5 p-2 align-baseline small-d" >เวลาเปิดเตา : </span>
+                    <span className="fn-20 text-yellow tm-onoff-bg align-baseline my-dt float-start" >{statTime}</span>
                   </div>
-                  <div className="tm-onoff">
-                    <span className="fn-20 p-2 align-baseline" >เวลาปิดเตา : </span><span className="fn-20 text-yellow tm-onoff-bg align-baseline " >{stopTime}</span>
+
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-start ms-5 mt-3 mb-5 state_on_of">
+                    <span className="fs-5 p-2 align-baseline" >เวลาปิดเตา : </span>
+                    <span className="fn-20 text-yellow tm-onoff-bg align-baseline my-dt float-start " >{stopTime}</span>
                   </div>
-                </Card.Body>
+                </div>
               </Card>
             </div>
 
-            <div className="col-md-4">
+            <div className="col-12 col-sm-12 col-md-12 col-lg-4 mb-3">
               <Card>
-                <Card.Body className="card-body-h card-black">
-
+                <Card.Body className="card-black">
 
                   <div className="center fn-20">อัพเดทล่าสุด</div>
-                  <div className="row">
-                    <div className="col-md-12 mt-4">
-                      <div className="center fn-20">
-                        <span className="float-start ms-4 " >{lastUpdateTime}</span>
-                        <span className="float-end me-4 " >{lastUpdateDate}</span>
-                      </div>
-                    </div>
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+                    <span className="float-start fs-5 my-space-date" >{lastUpdateTime}</span>
+                    <span className="float-start fs-5" >{lastUpdateDate}</span>
+                  </div>
 
-                    <div className="col-md-12 mt-4">
-                      <div className="fn-20 ">
-                        <span className="float-start ms-4 align-baseline" >สถานะเตา</span>
-                        <span className="float-end me-4 align-baseline" ><button type="button" className={klinstate === 1 ? 'btn btn-primary text-black stateklinYello' : 'btn btn-primary text-black stateklinRed'} >{klinstate === 1 ? 'เปิด' : 'ปิด'}</button></span>
-                      </div>
-                    </div>
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+                    <span className="float-start align-baseline fs-5 my-space-klin" >สถานะเตา</span>
+                    <span className="float-end align-baseline fs-5" ><button type="button" className={klinstate === 1 ? 'btn btn-primary text-black stateklinYello' : 'btn btn-primary text-black stateklinRed'} >{klinstate === 1 ? 'เปิด' : 'ปิด'}</button></span>
+                  </div>
 
-                    <div className="col-md-12 mt-4">
-                      <div className="fn-20 ms-4 me-4 d-grid align-baseline" >
-                        <button onClick={handleDownloadClick} disabled={isLoading} type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }} > {isLoading ? 'กำลังดาวโหลด...' : 'ดาวโหลดตอนนี้ '}</button>
-                      </div>
-                    </div>
+                  {/* <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3"> */}
+                  <div className="fn-20 ms-4 me-4 d-grid align-baseline mt-4 mb-4 btn-load" >
+                    <button onClick={handleDownloadClick} disabled={isLoading} type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }} > {isLoading ? 'กำลังดาวโหลด...' : 'ดาวโหลดตอนนี้ '}</button>
+                    {/* </div> */}
                   </div>
                 </Card.Body>
               </Card>
@@ -497,7 +517,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
           {/* graph 1*/}
           <div className="row">
-            <div className="col-md-12">
+            <div className="col-12 col-md-12">
               <Card className="mb-3">
                 <Card.Body className="">
                   <HighchartsReact
@@ -510,9 +530,7 @@ export default function Dashboard(props: HighchartsReact.Props) {
               </Card>
             </div>
           </div>
-          {/* graph 1*/}
 
-          {/* graph 2*/}
           <div className="row">
             <div className="col-md-12">
               <Card className="mb-3">
@@ -527,7 +545,6 @@ export default function Dashboard(props: HighchartsReact.Props) {
               </Card>
             </div>
           </div>
-          {/* graph 2*/}
 
           {/* data 1*/}
           <div className="row">
@@ -582,5 +599,76 @@ export default function Dashboard(props: HighchartsReact.Props) {
 
       </div>
     </div>
-  );
+  ) :
+    <div className="d-flex">
+      <div>
+        <Sidebars />
+      </div>
+      <div
+        style={{
+          flex: "1 1 auto",
+          display: "flex",
+          flexFlow: "column",
+          height: "100vh",
+          overflowY: "hidden",
+          backgroundColor: "#DFDFD9",
+        }}
+      >
+        <Headers />
+
+        <div className="p-4 overflow-auto">
+          {/* header information */}
+          <div className="row">
+            <div className="col-12 col-sm-12 col-md-12 col-lg-8">
+              <Card className="mb-3">
+                <div className="card-body" >
+                  <div className="d-flex justify-content-between align-items-center dt-blower">
+                    <span className="fs-5 p-2 float-start my-dt" >วันที่ {thaiFormattedDateTime}</span>
+                    <span className="fs-5 p-2 float-end my-kl ">หมายเลขเตา : {id}</span>
+                  </div>
+
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-start ms-5 mt-3 state_on_of">
+                    <span className="fs-5 p-2 align-baseline small-d" >เวลาเปิดเตา : </span>
+                    <span className="fn-20 text-yellow tm-onoff-bg align-baseline my-dt float-start" >{statTime}</span>
+                  </div>
+
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-start ms-5 mt-3 mb-5 state_on_of">
+                    <span className="fs-5 p-2 align-baseline" >เวลาปิดเตา : </span>
+                    <span className="fn-20 text-yellow tm-onoff-bg align-baseline my-dt float-start " >{stopTime}</span>
+                  </div>
+                </div>
+              </Card>
+            </div>
+
+            <div className="col-12 col-sm-12 col-md-12 col-lg-4 mb-3">
+              <Card>
+                <Card.Body className="card-black">
+
+                  <div className="center fn-20">อัพเดทล่าสุด</div>
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+                    <span className="float-start fs-5 my-space-date" >{lastUpdateTime}</span>
+                    <span className="float-start fs-5" >{lastUpdateDate}</span>
+                  </div>
+
+                  <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3">
+                    <span className="float-start align-baseline fs-5 my-space-klin" >สถานะเตา</span>
+                    <span className="float-end align-baseline fs-5" ><button type="button" className={klinstate === 1 ? 'btn btn-primary text-black stateklinYello' : 'btn btn-primary text-black stateklinRed'} >{klinstate === 1 ? 'เปิด' : 'ปิด'}</button></span>
+                  </div>
+
+                  {/* <div className="d-grid gap-2 d-sm-flex justify-content-sm-center mt-3"> */}
+                  <div className="fn-20 ms-4 me-4 d-grid align-baseline mt-4 mb-4 btn-load" >
+                    <button onClick={handleDownloadClick} disabled={isLoading} type="button" className="btn btn-primary text-black" style={{ backgroundColor: "#EED236", border: "none", }} > {isLoading ? 'กำลังดาวโหลด...' : 'ดาวโหลดตอนนี้ '}</button>
+                    {/* </div> */}
+                  </div>
+                </Card.Body>
+              </Card>
+            </div>
+          </div>
+          {/* header information */}
+
+        </div>
+
+      </div>
+    </div>
+    ;
 }
